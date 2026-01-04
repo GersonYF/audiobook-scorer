@@ -102,7 +102,7 @@ export interface JobStatusResponse {
       author: string;
       year: string;
       description: string;
-      genres: string[];
+      genre: string;
     };
     fileReference: {
       type: string;
@@ -116,6 +116,32 @@ export interface JobStatusResponse {
     };
     error: string | null;
   };
+}
+
+export interface JobSegment {
+  jobId: string;
+  segmentId: string;
+  text: string;
+  start: number;
+  end: number;
+  duration: number;
+  mood: string;
+  intensity: number;
+  musicalSuggestions: {
+    tempo?: string;
+    instrumentation?: string;
+    dynamics?: string;
+    genre?: string;
+    techniques?: string[];
+    [key: string]: any;
+  };
+}
+
+export interface JobSegmentsResponse {
+  success: boolean;
+  jobId: string;
+  segments: JobSegment[];
+  totalSegments: number;
 }
 
 export const jobsApi = createApi({
@@ -147,6 +173,14 @@ export const jobsApi = createApi({
       transformResponse: (response: JobStatusResponse) => response,
     }),
     
+    getJobSegments: builder.query<JobSegmentsResponse, string>({
+      query: (jobId) => ({
+        url: `${import.meta.env.VITE_API_JOB_SEGMENTS_UUID_PATH}/jobs/segments/${jobId}`,
+        method: 'GET',
+      }),
+      transformResponse: (response: JobSegmentsResponse) => response,
+    }),
+    
     uploadFile: builder.mutation<FileUploadResponse, File>({
       query: (file) => {
         const formData = new FormData();
@@ -176,7 +210,8 @@ export const jobsApi = createApi({
 
 export const { 
   useGetJobsQuery, 
-  useGetJobStatusQuery, 
+  useGetJobStatusQuery,
+  useGetJobSegmentsQuery,
   useUploadFileMutation, 
   useCreateJobMutation 
 } = jobsApi;
